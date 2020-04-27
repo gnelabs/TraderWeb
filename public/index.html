@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Epithy Robo Trader</title>
+    <link rel="manifest" href="%PUBLIC_URL%/assets/manifest.json">
+    <link rel="shortcut icon" href="%PUBLIC_URL%/assets/favicon.ico">
+    <link rel="icon" href="%PUBLIC_URL%/assets/favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <!-- These are vars provided server-side and get injected by lambda. -->
+    <div id="RoboTraderEnvInfo" data-envinfo='{
+      "awsRegion": "{{ awsregion }}",
+      "currentView": "{{ currentview }}",
+      "cognitoClientId": "{{ COGNITO_CLIENT_ID }}",
+      "cognitoUserPoolId": "{{ COGNITO_USER_POOL_ID }}"
+    }'>
+    </div>
+    <div id="root">
+        <div class="epithyrobotrader-preload-anim" style="text-align: center;display: block;">
+            <img width="300" height="200" src="%PUBLIC_URL%/assets/epithy_anim.svg" />
+        </div>
+        <div class="epithyrobotrader-preload-title" style="text-align: center;display: block;">
+            Loading...
+        </div>
+    </div>
+  </body>
+</html>

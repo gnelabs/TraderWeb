@@ -1,0 +1,14 @@
+// Variable overrides
+
+// Epithy replacement color scheme.
+// To-Do: Do this properly?
+$epithygreen: #beb525;
+$epithyyellow: #6bb93b;
+$primary: $epithyyellow;
+$info: $epithygreen;
+
+// Set default container-fluid to have no padding. Can always be added afterwords.
+.container-fluid {
+    padding-right: 0px !important;
+    padding-left: 0px !important;
+}
