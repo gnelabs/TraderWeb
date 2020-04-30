@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Card, CardBody, CardGroup, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
+import { Link } from 'react-router-dom';
+import { Button, Card, CardBody, CardGroup, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row, } from 'reactstrap';
 import { AuthenticationDetails, CognitoUserPool, CognitoUser, CookieStorage } from "amazon-cognito-identity-js";
 
 
@@ -17,14 +18,16 @@ class Login extends Component {
     // is not documented anywhere since its in beta. For now, use Authorization header.
     this.state = {
       poolData: {
-        UserPoolId: "us-east-2_i3BLbMndc",
-        ClientId: "ut4ec3hp91vq3nhn9nqlivuoi",
+        UserPoolId: "us-east-1_K9GfQ6wIr",
+        ClientId: "5cojum77pk261h362gcvqmom1o",
         Storage: new CookieStorage({
           domain: document.location.hostname,
           secure: false
         })
       },
       submitDisabled: true,
+      userName: this.props.location.state !== undefined ? this.props.location.state.rhUser : '',
+      rh_user_registered: false,
     };
     console.log('pooldata: ', this.state.poolData);
     this.userPool = new CognitoUserPool(this.state.poolData);
@@ -72,6 +75,20 @@ class Login extends Component {
     }
   }
   
+  // Display registration card if there are no registered users.
+  componentDidMount() {
+    fetch('/api/checkusercreated', {
+      method: 'GET',
+      ContentType: 'application/json'
+    }).then((response) => response.json()).then(responseJSON => {
+      if (responseJSON.rh_user_registered === true) {
+        this.setState({
+          rh_user_registered: true,
+        });
+      }
+    });
+  }
+  
   render() {
     return (
       <div className="app flex-row align-items-center">
@@ -90,7 +107,7 @@ class Login extends Component {
                             <i className="icon-user"></i>
                           </InputGroupText>
                         </InputGroupAddon>
-                        <Input type="email" placeholder="Username" id='userName' onChange={this.handleChange} />
+                        <Input type="email" placeholder="Username" id='userName' value={this.state.userName} onChange={this.handleChange} />
                       </InputGroup>
                       <InputGroup className="mb-4">
                         <InputGroupAddon addonType="prepend">
@@ -108,6 +125,20 @@ class Login extends Component {
                     </Form>
                   </CardBody>
                 </Card>
+                { this.state.rh_user_registered ? null :
+                  this.state.userName ? null :
+                <Card className="text-white bg-primary py-5 d-md-down-none" style={{ width: '44%' }}>
+                  <CardBody className="text-center">
+                    <div>
+                      <h2>Sign up</h2>
+                      <p>You need to register your Robinhood account first before logging in.</p>
+                      <Link to="/register">
+                        <Button color="primary" className="mt-3" active tabIndex={-1}>Register Now!</Button>
+                      </Link>
+                    </div>
+                  </CardBody>
+                </Card>
+                }
               </CardGroup>
             </Col>
           </Row>

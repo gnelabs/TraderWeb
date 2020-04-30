@@ -29,6 +29,7 @@ const DefaultLayout = React.lazy(() => import('./containers/DefaultLayout'));
 
 // Pages
 const Login = React.lazy(() => import('./views/Login'));
+const Register = React.lazy(() => import('./views/Register'));
 
 class App extends Component {
   render() {
@@ -38,6 +39,7 @@ class App extends Component {
           <Switch>
             <Route exact path="/" name="Home" render={props => <DefaultLayout {...props}/>} />
             <Route path="/login" name="Login Page" render={props => <Login {...props}/>} />
+            <Route path="/register" name="Register" render={props => <Register {...props}/>} />
           </Switch>
         </React.Suspense>
       </BrowserRouter>
