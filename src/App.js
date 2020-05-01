@@ -37,18 +37,14 @@ class App extends Component {
       <BrowserRouter>
         <React.Suspense fallback={loading()}>
           <Switch>
-            <Route exact path="/" name="Home" render={props => <DefaultLayout {...props}/>} />
-            <Route path="/login" name="Login Page" render={props => <Login {...props}/>} />
-            <Route path="/register" name="Register" render={props => <Register {...props}/>} />
+            <Route exact path="/" name="Home" render={props => <DefaultLayout {...props} epithypageinfo={ServerSideDetails}/>} />
+            <Route path="/login" name="Login Page" render={(props) => <Login {...props} epithypageinfo={ServerSideDetails}/>} />
+            <Route path="/register" name="Register" render={props => <Register {...props} epithypageinfo={ServerSideDetails}/>} />
           </Switch>
         </React.Suspense>
       </BrowserRouter>
     );
   }
 }
-
-App.defaultProps = {
-  epithypageinfo: ServerSideDetails
-};
 
 export default App;

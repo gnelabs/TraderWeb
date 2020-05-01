@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, CardBody, CardGroup, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row, } from 'reactstrap';
-import { AuthenticationDetails, CognitoUserPool, CognitoUser, CookieStorage } from "amazon-cognito-identity-js";
+import { AuthenticationDetails, CognitoUserPool, CognitoUser } from "amazon-cognito-identity-js";
+import Cookies from 'js-cookie';
 
 
 class Login extends Component {
@@ -14,16 +15,10 @@ class Login extends Component {
         // ClientId: this.props.epithypageinfo.cognitoClientId
       // }
     // };
-    // HTTP API doesn't seem to support cookie storage yet? Or the format needed
-    // is not documented anywhere since its in beta. For now, use Authorization header.
     this.state = {
       poolData: {
         UserPoolId: "us-east-1_K9GfQ6wIr",
-        ClientId: "5cojum77pk261h362gcvqmom1o",
-        Storage: new CookieStorage({
-          domain: document.location.hostname,
-          secure: false
-        })
+        ClientId: "5cojum77pk261h362gcvqmom1o"
       },
       submitDisabled: true,
       userName: this.props.location.state !== undefined ? this.props.location.state.rhUser : '',
@@ -44,17 +39,19 @@ class Login extends Component {
     
     var cognitoUser = new CognitoUser({
       Username: this.state.userName,
-      Pool: this.userPool,
-      Storage: new CookieStorage({
-        domain: document.location.hostname,
-        secure: false
-      })
+      Pool: this.userPool
     });
     
+    // Store JWT in a one-day cookie. Doing this myself to control the cookie name.
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: result => {
         var accessToken = result.getAccessToken().getJwtToken();
-        console.log(accessToken);
+        Cookies.set('epithycognitojwt', accessToken, {
+          expires: 1,
+          path: '/',
+          domain: document.location.hostname,
+          secure: false
+        });
         this.props.history.push('/');
       },
       

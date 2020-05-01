@@ -47,7 +47,8 @@
     "simple-line-icons": "^2.4.1",
     "spinkit": "1.2.5",
     "yup": "^0.27.0",
-    "amazon-cognito-identity-js": "3.2.6"
+    "amazon-cognito-identity-js": "3.2.6",
+    "js-cookie": "2.2.1"
   },
   "devDependencies": {
     "mutationobserver-shim": "^0.3.3",
