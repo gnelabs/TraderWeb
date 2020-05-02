@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import './App.scss';
+import Cookies from 'js-cookie';
 
 const loading = () => {
   return (
@@ -21,11 +22,18 @@ const loading = () => {
   );
 }
 
-// Parse the html provided by lambda for RoboTraderEnvInfo server side info.
-const ServerSideDetails = JSON.parse(document.getElementById('RoboTraderEnvInfo').dataset.envinfo);
-
 // Containers
 const DefaultLayout = React.lazy(() => import('./containers/DefaultLayout'));
+
+// Routes that require a JWT to work. Server side there is no auth, so client side will redirect.
+const PrivateRoute = ({ component: Component, ...rest }) => (
+  <Route {...rest} render={(props) => (
+    Cookies.get('epithycognitojwt', { domain: document.location.hostname }) !== undefined
+      ? <Component {...props} />
+      : <Redirect to='/login' />
+  )} />
+)
+
 
 // Pages
 const Login = React.lazy(() => import('./views/Login'));
@@ -37,9 +45,9 @@ class App extends Component {
       <BrowserRouter>
         <React.Suspense fallback={loading()}>
           <Switch>
-            <Route exact path="/" name="Home" render={props => <DefaultLayout {...props} epithypageinfo={ServerSideDetails}/>} />
-            <Route path="/login" name="Login Page" render={(props) => <Login {...props} epithypageinfo={ServerSideDetails}/>} />
-            <Route path="/register" name="Register" render={props => <Register {...props} epithypageinfo={ServerSideDetails}/>} />
+            <PrivateRoute exact path="/" name="Home" component={DefaultLayout} />
+            <Route path="/login" name="Login Page" render={props => <Login {...props} />} />
+            <Route path="/register" name="Register" render={props => <Register {...props} />} />
           </Switch>
         </React.Suspense>
       </BrowserRouter>

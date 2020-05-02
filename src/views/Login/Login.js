@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { Button, Card, CardBody, CardGroup, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row, } from 'reactstrap';
 import { AuthenticationDetails, CognitoUserPool, CognitoUser } from "amazon-cognito-identity-js";
 import Cookies from 'js-cookie';
+
+// Parse the html provided by lambda for RoboTraderEnvInfo server side info.
+const ServerSideDetails = JSON.parse(document.getElementById('RoboTraderEnvInfo').dataset.envinfo);
 
 
 class Login extends Component {
@@ -11,8 +14,8 @@ class Login extends Component {
     console.log('props: ', this.props);
     // this.state = {
       // poolData: {
-        // UserPoolId: this.props.epithypageinfo.cognitoUserPoolId,
-        // ClientId: this.props.epithypageinfo.cognitoClientId
+        // UserPoolId: ServerSideDetails.cognitoUserPoolId,
+        // ClientId: ServerSideDetails.cognitoClientId
       // }
     // };
     this.state = {
@@ -24,14 +27,19 @@ class Login extends Component {
       userName: this.props.location.state !== undefined ? this.props.location.state.rhUser : '',
       rh_user_registered: false,
     };
-    console.log('pooldata: ', this.state.poolData);
     this.userPool = new CognitoUserPool(this.state.poolData);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
+  }
+  
+  handleKeyPress(target) {
+    if(target.key === 'Enter'){
+      this.handleSubmit();  
+    } 
   }
   
   handleSubmit() {
-    console.log(this.state);
     var authenticationDetails = new AuthenticationDetails({
       Username: this.state.userName,
       Password: this.state.passWord
@@ -52,7 +60,7 @@ class Login extends Component {
           domain: document.location.hostname,
           secure: false
         });
-        this.props.history.push('/');
+        this.props.history.push('/')
       },
       
       onFailure: err => {
@@ -73,7 +81,7 @@ class Login extends Component {
   }
   
   // Display registration card if there are no registered users.
-  componentDidMount() {
+  componentWillMount() {
     fetch('/api/checkusercreated', {
       method: 'GET',
       ContentType: 'application/json'
@@ -112,7 +120,7 @@ class Login extends Component {
                             <i className="icon-lock"></i>
                           </InputGroupText>
                         </InputGroupAddon>
-                        <Input type="password" placeholder="Password" id='passWord' onChange={this.handleChange} />
+                        <Input type="password" placeholder="Password" id='passWord' onChange={this.handleChange} onKeyPress={this.handleKeyPress} />
                       </InputGroup>
                       <Row>
                         <Col xs="6">
@@ -145,4 +153,4 @@ class Login extends Component {
   }
 }
 
-export default Login;
+export default withRouter(Login);

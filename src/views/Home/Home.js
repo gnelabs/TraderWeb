@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import './Home.scss'
 import Cookies from 'js-cookie';
 
@@ -33,4 +34,4 @@ class Home extends Component {
   }
 }
 
-export default Home;
+export default withRouter(Home);

@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import { Button, Card, CardBody, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
 import { CognitoUserPool, CognitoUserAttribute } from "amazon-cognito-identity-js";
+
+// Parse the html provided by lambda for RoboTraderEnvInfo server side info.
+const ServerSideDetails = JSON.parse(document.getElementById('RoboTraderEnvInfo').dataset.envinfo);
+
 
 class Register extends Component {
   constructor(props) {
@@ -8,12 +13,10 @@ class Register extends Component {
     console.log('props: ', this.props);
     // this.state = {
       // poolData: {
-        // UserPoolId: this.props.epithypageinfo.cognitoUserPoolId,
-        // ClientId: this.props.epithypageinfo.cognitoClientId
+        // UserPoolId: ServerSideDetails.cognitoUserPoolId,
+        // ClientId: ServerSideDetails.cognitoClientId
       // }
     // };
-    // HTTP API doesn't seem to support cookie storage yet? Or the format needed
-    // is not documented anywhere since its in beta. For now, use Authorization header.
     this.state = {
       poolData: {
         UserPoolId: "us-east-1_K9GfQ6wIr",
@@ -100,4 +103,4 @@ class Register extends Component {
   }
 }
 
-export default Register;
+export default withRouter(Register);
