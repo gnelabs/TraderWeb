@@ -11,16 +11,10 @@ class Register extends Component {
   constructor(props) {
     super(props);
     console.log('props: ', this.props);
-    // this.state = {
-      // poolData: {
-        // UserPoolId: ServerSideDetails.cognitoUserPoolId,
-        // ClientId: ServerSideDetails.cognitoClientId
-      // }
-    // };
     this.state = {
       poolData: {
-        UserPoolId: "us-east-1_K9GfQ6wIr",
-        ClientId: "5cojum77pk261h362gcvqmom1o"
+        UserPoolId: ServerSideDetails.cognitoUserPoolId,
+        ClientId: ServerSideDetails.cognitoClientId
       },
       submitDisabled: true
     };
