@@ -39,7 +39,7 @@ class Login extends Component {
   
   handleKeyPressVerify(target) {
     if(target.key === 'Enter'){
-      this.handleVerify();  
+      this.handleLogin();
     } 
   }
   
@@ -68,6 +68,7 @@ class Login extends Component {
         this.setState({
           verifyDisabled: false
         });
+        this.handleVerify();
       },
       
       onFailure: err => {
@@ -88,11 +89,41 @@ class Login extends Component {
         body: JSON.stringify({
           username: this.state.userName,
           password: this.state.passWord,
-          code: this.state.rhCode,
           sms: this.state.bySMS
         })
       }).then((response) => response.json()).then(responseJSON => {
-        if (responseJSON.rh_login_success === true) {
+        if (responseJSON.challenge_id !== "") {
+          this.setState({
+            code: responseJSON.challenge_id
+          });
+        } else {
+          alert(responseJSON.message);
+        }
+      });
+    }
+    catch(error) {
+      alert("Something went wrong contacting the server.");
+    }
+  }
+  
+  // Login with 2fa code.
+  handleLogin() {
+    try {
+      fetch('/api/loginchallenge', {
+        method: 'POST',
+        ContentType: 'application/json',
+        headers: {
+          'Authorization': Cookies.get('epithycognitojwt', { domain: document.location.hostname })
+        },
+        body: JSON.stringify({
+          username: this.state.userName,
+          password: this.state.passWord,
+          sms: this.state.bySMS,
+          code: this.state.rhCode,
+          challenge: this.state.code
+        })
+      }).then((response) => response.json()).then(responseJSON => {
+        if (responseJSON.rh_login_successful === true) {
           this.props.history.push('/');
         } else {
           alert(responseJSON.message);
@@ -165,6 +196,10 @@ class Login extends Component {
                         </InputGroupAddon>
                         <Input type="password" placeholder="Password" id='passWord' onChange={this.handleChange} onKeyPress={this.handleKeyPress} />
                       </InputGroup>
+                      <InputGroup className="mb-4">
+                        Verify by SMS.
+                        <Input type="checkbox" id="bySMS" onChange={this.handleChange} checked={this.state.bySMS} />
+                      </InputGroup>
                       <Row>
                         <Col xs="6">
                           <Button color="primary" className="px-4" onClick={this.handleSubmit} disabled={this.state.submitDisabled}>Get Code</Button>
@@ -185,13 +220,9 @@ class Login extends Component {
                         </InputGroupAddon>
                         <Input type="text" pattern="[0-9]*" placeholder="Robinhood code" id='rhCode' onChange={this.handleChange} onKeyPress={this.handleKeyPressVerify} disabled={this.state.verifyDisabled} />
                       </InputGroup>
-                      <InputGroup className="mb-4">
-                        Verify by SMS.
-                        <Input type="checkbox" id="bySMS" onChange={this.handleChange} checked={this.state.bySMS} disabled={this.state.verifyDisabled}/>
-                      </InputGroup>
                       <Row>
                         <Col xs="6">
-                          <Button color="secondary" className="mt-3" onClick={this.handleVerify} disabled={this.state.verifyDisabled}>Login</Button>
+                          <Button color="secondary" className="mt-3" onClick={this.handleLogin} disabled={this.state.verifyDisabled}>Login</Button>
                         </Col>
                       </Row>
                     </CardBody>
