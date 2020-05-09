@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { Button, Card, CardBody, CardGroup, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row, } from 'reactstrap';
-import { AuthenticationDetails, CognitoUserPool, CognitoUser } from "amazon-cognito-identity-js";
-import Cookies from 'js-cookie';
-
-// Parse the html provided by lambda for RoboTraderEnvInfo server side info.
-const ServerSideDetails = JSON.parse(document.getElementById('RoboTraderEnvInfo').dataset.envinfo);
+import { Button, Card, CardBody, CardGroup, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row, Spinner } from 'reactstrap';
+import { Auth } from 'aws-amplify';
 
 
 class Login extends Component {
@@ -13,17 +9,14 @@ class Login extends Component {
     super(props);
     console.log('props: ', this.props);
     this.state = {
-      poolData: {
-        UserPoolId: ServerSideDetails.cognitoUserPoolId,
-        ClientId: ServerSideDetails.cognitoClientId
-      },
       submitDisabled: true,
       verifyDisabled: true,
       userName: this.props.location.state !== undefined ? this.props.location.state.rhUser : '',
       rh_user_registered: true,
-      bySMS: true
+      bySMS: true,
+      loading_cognito: false,
+      jwttoken: ""
     };
-    this.userPool = new CognitoUserPool(this.state.poolData);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -43,96 +36,73 @@ class Login extends Component {
     } 
   }
   
-  handleSubmit() {
-    var authenticationDetails = new AuthenticationDetails({
-      Username: this.state.userName,
-      Password: this.state.passWord
-    });
-    
-    var cognitoUser = new CognitoUser({
-      Username: this.state.userName,
-      Pool: this.userPool
-    });
-    
-    // Store JWT in a one-day cookie. Doing this myself to control the cookie name
-    // rather than using amazon-cognito-identity-js CookieStorage which gives arbitary names.
-    cognitoUser.authenticateUser(authenticationDetails, {
-      onSuccess: result => {
-        var accessToken = result.getAccessToken().getJwtToken();
-        Cookies.set('epithycognitojwt', accessToken, {
-          expires: 1,
-          path: '/',
-          domain: document.location.hostname,
-          secure: false
-        });
-        this.setState({
-          verifyDisabled: false
-        });
-        this.handleVerify();
-      },
-      
-      onFailure: err => {
-        alert(err.message);
-      }
-    });
+  // Cognito login needs to happen sequentially else login won't be finished
+  // by the time Auth.currentSession() is called. There is a loading_cognito
+  // friction element in place to let the user know it's doing something.
+  async handleSubmit() {
+    try {
+      this.setState({
+        loading_cognito: true
+      });
+      const user = await Auth.signIn(this.state.userName, this.state.passWord);
+      this.setState({
+        verifyDisabled: false,
+        loading_cognito: false,
+        jwttoken: user.signInUserSession.accessToken.jwtToken
+      });
+      localStorage.setItem("authenticated", true);
+      this.handleVerify();
+    } catch (error) {
+      console.log('error signing in', error);
+    }
   }
   
   // Once Cognito is logged in, send login to RH to get 2FA code to generate token.
   handleVerify() {
-    try {
-      fetch('/api/login', {
-        method: 'POST',
-        ContentType: 'application/json',
-        headers: {
-          'Authorization': Cookies.get('epithycognitojwt', { domain: document.location.hostname })
-        },
-        body: JSON.stringify({
-          username: this.state.userName,
-          password: this.state.passWord,
-          sms: this.state.bySMS
-        })
-      }).then((response) => response.json()).then(responseJSON => {
-        if (responseJSON.challenge_id !== "") {
-          this.setState({
-            code: responseJSON.challenge_id
-          });
-        } else {
-          alert(responseJSON.message);
-        }
-      });
-    }
-    catch(error) {
-      alert("Something went wrong contacting the server.");
-    }
+    fetch('/api/login', {
+      method: 'POST',
+      ContentType: 'application/json',
+      headers: {
+        'Authorization': this.state.jwttoken
+      },
+      body: JSON.stringify({
+        username: this.state.userName,
+        password: this.state.passWord,
+        sms: this.state.bySMS
+      })
+    }).then((response) => response.json()).then(responseJSON => {
+      if (responseJSON.challenge_id !== "") {
+        this.setState({
+          code: responseJSON.challenge_id
+        });
+      } else {
+        alert(responseJSON.message);
+      }
+    }).catch(err => alert("Something went wrong contacting the server."));
   }
   
   // Login with 2fa code.
   handleLogin() {
-    try {
-      fetch('/api/loginchallenge', {
-        method: 'POST',
-        ContentType: 'application/json',
-        headers: {
-          'Authorization': Cookies.get('epithycognitojwt', { domain: document.location.hostname })
-        },
-        body: JSON.stringify({
-          username: this.state.userName,
-          password: this.state.passWord,
-          sms: this.state.bySMS,
-          code: this.state.rhCode,
-          challenge: this.state.code
-        })
-      }).then((response) => response.json()).then(responseJSON => {
-        if (responseJSON.rh_login_successful === true) {
-          this.props.history.push('/');
-        } else {
-          alert(responseJSON.message);
-        }
-      });
-    }
-    catch(error) {
-      alert("Something went wrong contacting the server.");
-    }
+    fetch('/api/loginchallenge', {
+      method: 'POST',
+      ContentType: 'application/json',
+      headers: {
+        'Authorization': this.state.jwttoken
+      },
+      body: JSON.stringify({
+        username: this.state.userName,
+        password: this.state.passWord,
+        sms: this.state.bySMS,
+        code: this.state.rhCode,
+        challenge: this.state.code
+      })
+    }).then((response) => response.json()).then(responseJSON => {
+      if (responseJSON.rh_login_successful === true) {
+        this.props.history.push('/');
+      } else {
+        alert(responseJSON.message);
+      }
+    }).catch(err => alert("Something went wrong contacting the server."));
   }
   
   handleChange(event) {
@@ -204,6 +174,10 @@ class Login extends Component {
                         <Col xs="6">
                           <Button color="primary" className="px-4" onClick={this.handleSubmit} disabled={this.state.submitDisabled}>Get Code</Button>
                         </Col>
+                        { this.state.loading_cognito ?
+                        <Spinner animation="border" role="status" variant="secondary" />
+                        : null
+                        }
                       </Row>
                     </CardBody>
                   </Card>

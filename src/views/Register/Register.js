@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { Button, Card, CardBody, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
-import { CognitoUserPool, CognitoUserAttribute } from "amazon-cognito-identity-js";
-
-// Parse the html provided by lambda for RoboTraderEnvInfo server side info.
-const ServerSideDetails = JSON.parse(document.getElementById('RoboTraderEnvInfo').dataset.envinfo);
+import { Auth } from 'aws-amplify';
 
 
 class Register extends Component {
@@ -12,13 +9,8 @@ class Register extends Component {
     super(props);
     console.log('props: ', this.props);
     this.state = {
-      poolData: {
-        UserPoolId: ServerSideDetails.cognitoUserPoolId,
-        ClientId: ServerSideDetails.cognitoClientId
-      },
       submitDisabled: true
     };
-    this.userPool = new CognitoUserPool(this.state.poolData);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -26,25 +18,19 @@ class Register extends Component {
   handleSubmit() {
     console.log(this.state);
     
-    var attributeList = [];
-    
-    var dataEmail = {
-      Name: 'email',
-      Value: this.state.userName,
-    };
-    
-    var attributeEmail = new CognitoUserAttribute(dataEmail);
-    attributeList.push(attributeEmail);
-    
-    this.userPool.signUp(this.state.userName, this.state.passWord, attributeList, null, function(
-      err,
-      result
-    ) {
-      if (err) {
-        alert(err.message || JSON.stringify(err));
-        return;
-      }
-    });
+    try {
+      const user = Auth.signUp({
+        username: this.state.userName,
+        password: this.state.passWord,
+        attributes: {
+          email: this.state.userName
+        }
+      });
+      console.log({ user });
+    } catch (error) {
+      console.log('error signing up:', error);
+      alert(error);
+    }
     
     this.props.history.push('/login', { rhUser: this.state.userName });
   }

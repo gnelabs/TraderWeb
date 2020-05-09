@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import './Home.scss'
-import Cookies from 'js-cookie';
+import { Auth } from 'aws-amplify';
 
 class Home extends Component {
   constructor(props) {
     super(props);
     console.log('props: ', this.props);
-    console.log('authcookie: ', Cookies.get('epithycognitojwt', { domain: document.location.hostname }));
+    // console.log('jwt: ', Auth.currentSession().accessToken.jwtToken);
   }
   
   render() {

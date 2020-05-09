@@ -14,13 +14,7 @@
       You need to enable JavaScript to run this app.
     </noscript>
     <!-- These are vars provided server-side and get injected by lambda. -->
-    <div id="RoboTraderEnvInfo" data-envinfo='{
-      "awsRegion": "{{ awsregion }}",
-      "currentView": "{{ currentview }}",
-      "cognitoClientId": "{{ COGNITO_CLIENT_ID }}",
-      "cognitoUserPoolId": "{{ COGNITO_USER_POOL_ID }}"
-    }'>
-    </div>
+    <div id="RoboTraderEnvInfo" data-envinfo='{"awsRegion": "{{ awsregion }}","currentView": "{{ currentview }}","cognitoIdentityPoolId": "{{ COGNITO_IDENTITY_ID }}","cognitoUserPoolWebClientId": "{{ COGNITO_CLIENT_ID }}","cognitoUserPoolId": "{{ COGNITO_USER_POOL_ID }}"}'></div>
     <div id="root">
         <div class="epithyrobotrader-preload-anim" style="text-align: center;display: block;">
             <img width="300" height="200" src="%PUBLIC_URL%/assets/epithy_anim.svg" />

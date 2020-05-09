@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import './App.scss';
-import Cookies from 'js-cookie';
+import Amplify, { Auth } from 'aws-amplify';
+
+// Parse the html provided by lambda for RoboTraderEnvInfo server side info.
+const ServerSideDetails = JSON.parse(document.getElementById('RoboTraderEnvInfo').dataset.envinfo);
 
 const loading = () => {
   return (
@@ -25,21 +28,54 @@ const loading = () => {
 // Containers
 const DefaultLayout = React.lazy(() => import('./containers/DefaultLayout'));
 
+// Setup auth
+Amplify.configure({
+  Auth: {
+    identityPoolId: ServerSideDetails.cognitoIdentityPoolId,
+    region: ServerSideDetails.awsRegion,
+    userPoolId: ServerSideDetails.cognitoUserPoolId,
+    userPoolWebClientId: ServerSideDetails.cognitoUserPoolWebClientId
+  }
+});
+
 // Routes that require a JWT to work. Server side there is no auth, so client side will redirect.
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route {...rest} render={(props) => (
-    Cookies.get('epithycognitojwt', { domain: document.location.hostname }) !== undefined
-      ? <Component {...props} />
-      : <Redirect to='/login' />
+    localStorage.getItem("authenticated") ? <Component {...props} /> : <Redirect to='/login' />
   )} />
 )
-
 
 // Pages
 const Login = React.lazy(() => import('./views/Login'));
 const Register = React.lazy(() => import('./views/Register'));
 
 class App extends Component {
+  state = {
+    isAuthenticated: false,
+    user: null
+  };
+  
+  setAuthStatus = authenticated => {
+    this.setState({ isAuthenticated: authenticated });
+    localStorage.setItem("authenticated", true);
+  };
+  
+  setUser = user => {
+    this.setState({ user: user });
+  };
+  
+  async componentDidMount() {
+    try {
+      const user = await Auth.currentAuthenticatedUser();
+      this.setAuthStatus(true);
+      this.setUser(user);
+    } catch (error) {
+      if (error !== "No current user") {
+        console.log(error);
+      }
+    }
+  }
+  
   render() {
     return (
       <BrowserRouter>
