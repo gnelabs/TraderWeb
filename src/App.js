@@ -39,39 +39,39 @@ Amplify.configure({
 });
 
 // Routes that require a JWT to work. Server side there is no auth, so client side will redirect.
-const PrivateRoute = ({ component: Component, ...rest }) => (
-  <Route {...rest} render={(props) => (
-    localStorage.getItem("authenticated") ? <Component {...props} /> : <Redirect to='/login' />
-  )} />
-)
+// Cognito populates LastAuthUser, and clears this out if the session is expired.
+const PrivateRoute = ({ component: Component, ...rest }) => {
+  if (localStorage.getItem("authkeyprefix")) {
+    if (localStorage.getItem(localStorage.getItem("authkeyprefix").concat('.', "LastAuthUser"))) {
+      return (
+        <Route {...rest} render={props => <Component {...props} />} />
+      );
+    } else {
+      return (
+        <Redirect to="/login" />
+      );
+    }
+  } else {
+    return (
+      <Redirect to="/login" />
+    );
+  }
+};
 
 // Pages
 const Login = React.lazy(() => import('./views/Login'));
 const Register = React.lazy(() => import('./views/Register'));
 
 class App extends Component {
-  state = {
-    isAuthenticated: false,
-    user: null
-  };
-  
-  setAuthStatus = authenticated => {
-    this.setState({ isAuthenticated: authenticated });
-    localStorage.setItem("authenticated", true);
-  };
-  
-  setUser = user => {
-    this.setState({ user: user });
-  };
-  
   async componentDidMount() {
     try {
       const user = await Auth.currentAuthenticatedUser();
-      this.setAuthStatus(true);
-      this.setUser(user);
+      localStorage.setItem("authkeyprefix", user.keyPrefix);
     } catch (error) {
       if (error !== "No current user") {
-        console.log(error);
+        console.log('Authentication issue: ', error);
+      } else if (error === "not authenticated") {
+        localStorage.setItem("authkeyprefix", false);
       }
     }
   }

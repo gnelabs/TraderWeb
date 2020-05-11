@@ -50,7 +50,7 @@ class Login extends Component {
         loading_cognito: false,
         jwttoken: user.signInUserSession.accessToken.jwtToken
       });
-      localStorage.setItem("authenticated", true);
+      localStorage.setItem("authkeyprefix", user.keyPrefix);
       this.handleVerify();
     } catch (error) {
       console.log('error signing in', error);
