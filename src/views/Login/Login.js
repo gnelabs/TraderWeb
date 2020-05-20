@@ -126,16 +126,22 @@ class Login extends Component {
   // Calls a backend unauthenticated route to check to see if there is an
   // existing user in Cognito.
   componentWillMount() {
-    fetch('/api/checkusercreated', {
-      method: 'GET',
-      ContentType: 'application/json'
-    }).then((response) => response.json()).then(responseJSON => {
-      if (responseJSON.rh_user_registered === true) {
-        this.setState({
-          rh_user_registered: true,
-        });
-      }
-    });
+    if (this.state.userName) {
+      this.setState({
+        rh_user_registered: true,
+      });
+    } else {
+      fetch('/api/checkusercreated', {
+        method: 'GET',
+        ContentType: 'application/json'
+      }).then((response) => response.json()).then(responseJSON => {
+        if (responseJSON.rh_user_registered !== true) {
+          this.setState({
+            rh_user_registered: false,
+          });
+        }
+      });
+    }
   }
   
   render() {
