@@ -29,12 +29,20 @@ const loading = () => {
 const DefaultLayout = React.lazy(() => import('./containers/DefaultLayout'));
 
 // Setup auth
+// Amplify.configure({
+  // Auth: {
+    // identityPoolId: ServerSideDetails.cognitoIdentityPoolId,
+    // region: ServerSideDetails.awsRegion,
+    // userPoolId: ServerSideDetails.cognitoUserPoolId,
+    // userPoolWebClientId: ServerSideDetails.cognitoUserPoolWebClientId
+  // }
+// });
 Amplify.configure({
   Auth: {
-    identityPoolId: ServerSideDetails.cognitoIdentityPoolId,
-    region: ServerSideDetails.awsRegion,
-    userPoolId: ServerSideDetails.cognitoUserPoolId,
-    userPoolWebClientId: ServerSideDetails.cognitoUserPoolWebClientId
+    identityPoolId: "us-east-1:77c0aa60-f7b1-4d50-b946-ce96a5b93119",
+    region: "us-east-1",
+    userPoolId: "us-east-1_gPIcq5rmT",
+    userPoolWebClientId: "6in6h4cmi5miggs3fpv1c8g82l"
   }
 });
 
@@ -82,6 +90,7 @@ class App extends Component {
         <React.Suspense fallback={loading()}>
           <Switch>
             <PrivateRoute exact path="/" name="Home" component={DefaultLayout} />
+            <PrivateRoute path="/settings" name="Settings" component={DefaultLayout} />
             <Route path="/login" name="Login Page" render={props => <Login {...props} />} />
             <Route path="/register" name="Register" render={props => <Register {...props} />} />
           </Switch>

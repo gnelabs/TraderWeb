@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import './Home.scss'
+import './Settings.scss'
 import { Auth } from 'aws-amplify';
 
-class Home extends Component {
+class Settings extends Component {
   constructor(props) {
     super(props);
     console.log('props: ', this.props);
@@ -43,4 +43,4 @@ class Home extends Component {
   }
 }
 
-export default withRouter(Home);
+export default withRouter(Settings);

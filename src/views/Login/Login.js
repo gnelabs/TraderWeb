@@ -8,10 +8,17 @@ class Login extends Component {
   constructor(props) {
     super(props);
     console.log('props: ', this.props);
+    
+    if (this.props.location.state !== undefined && this.props.location.state != null) {
+      var predefinedUser = this.props.location.state.rhUser;
+    } else {
+      var predefinedUser = ''
+    }
+    
     this.state = {
       submitDisabled: true,
       verifyDisabled: true,
-      userName: this.props.location.state !== undefined ? this.props.location.state.rhUser : '',
+      userName: predefinedUser,
       rh_user_registered: true,
       bySMS: true,
       loading_cognito: false,
