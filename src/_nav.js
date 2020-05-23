@@ -58,6 +58,17 @@ export default {
             hidden: false,
           },
         },
+        {
+          name: 'Backend Python & AWS Infra',
+          url: 'https://github.com/gnelabs/EpithyRoboTrader',
+          icon: 'fa fa-file-code-o',
+          attributes: {
+            target: '_blank',
+            rel: "noreferrer noopener",
+            disabled: false,
+            hidden: false,
+          },
+        },
       ]
     }
   ]

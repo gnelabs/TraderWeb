@@ -29,12 +29,13 @@ class Login extends Component {
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.handleKeyPressVerify = this.handleKeyPressVerify.bind(this);
     this.handleVerify = this.handleVerify.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
   }
   
   handleKeyPress(target) {
     if(target.key === 'Enter'){
       this.handleSubmit();  
-    } 
+    }
   }
   
   handleKeyPressVerify(target) {
