@@ -29,20 +29,12 @@ const loading = () => {
 const DefaultLayout = React.lazy(() => import('./containers/DefaultLayout'));
 
 // Setup auth
-// Amplify.configure({
-  // Auth: {
-    // identityPoolId: ServerSideDetails.cognitoIdentityPoolId,
-    // region: ServerSideDetails.awsRegion,
-    // userPoolId: ServerSideDetails.cognitoUserPoolId,
-    // userPoolWebClientId: ServerSideDetails.cognitoUserPoolWebClientId
-  // }
-// });
 Amplify.configure({
   Auth: {
-    identityPoolId: "us-east-1:77c0aa60-f7b1-4d50-b946-ce96a5b93119",
-    region: "us-east-1",
-    userPoolId: "us-east-1_gPIcq5rmT",
-    userPoolWebClientId: "6in6h4cmi5miggs3fpv1c8g82l"
+    identityPoolId: ServerSideDetails.cognitoIdentityPoolId,
+    region: ServerSideDetails.awsRegion,
+    userPoolId: ServerSideDetails.cognitoUserPoolId,
+    userPoolWebClientId: ServerSideDetails.cognitoUserPoolWebClientId
   }
 });
 
@@ -50,7 +42,7 @@ Amplify.configure({
 // Cognito populates LastAuthUser, and clears this out if the session is expired.
 const PrivateRoute = ({ component: Component, ...rest }) => {
   if (localStorage.getItem("authkeyprefix")) {
-    if (localStorage.getItem(localStorage.getItem("authkeyprefix").concat('.', "LastAuthUser"))) {
+    if (localStorage.getItem(localStorage.getItem("authkeyprefix").concat('.', "LastAuthUser")) !== null) {
       return (
         <Route {...rest} render={props => <Component {...props} />} />
       );
