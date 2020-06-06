@@ -25,9 +25,14 @@ export default {
       name: 'Controls',
     },
     {
-      name: 'Settings',
+      name: 'Global Settings',
       url: '/settings',
       icon: 'fa fa-toggle-on',
+    },
+    {
+      name: 'Strategies',
+      url: '/strategies',
+      icon: 'fa fa-lightbulb-o',
     },
     {
       name: 'Log Out',

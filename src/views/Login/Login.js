@@ -61,7 +61,7 @@ class Login extends Component {
       localStorage.setItem("authkeyprefix", user.keyPrefix);
       this.handleVerify();
     } catch (error) {
-      console.log('error signing in', error);
+      alert(error.message);
     }
   }
   
