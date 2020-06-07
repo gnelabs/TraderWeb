@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Button, Card, CardBody, CardHeader, Col, Collapse, Row, Table } from 'reactstrap';
+import { Button, Card, CardBody, CardHeader, Col, Collapse, Row, Table, Spinner } from 'reactstrap';
 import './Strategies.scss'
 import { Auth } from 'aws-amplify';
-
-const testResult = [{"enabled": false, "paperTrading": true, "requiresAlpaca": false, "meta": "", "description": "Grid trading strategy using SPY options. Constantly buys and sells, while trend-following in certain directions by buying into the grid and then selling once a trailing stop-loss is met. Works best during volatile markets. Requires free options trading and high-frequency API.\n\nGrid version 1.\nOption size: 1\nGrid size: 4", "strategyName": "Grid1", "requiresRealtime": true, "marketHours": "Normal", "requiresTDA": false, "requiresDayTrading": true, "requiresRobinhood": true}]
 
 class Strategies extends Component {
   constructor(props) {
@@ -14,8 +12,8 @@ class Strategies extends Component {
     this.state = {
       jwttoken: "",
       submitDisabled: true,
-      loadingSpinner: false,
-      strategySettings: testResult,
+      loadingSpinner: true,
+      strategySettings: [],
       accordion: new Array(1).fill(false)
     };
     
@@ -25,7 +23,6 @@ class Strategies extends Component {
   async componentWillMount() {
     this.setState({
       jwttoken: (await Auth.currentSession()).getIdToken().getJwtToken(),
-      loadingSpinner: true
     });
     
     fetch('/api/strategy_settings', {
@@ -38,9 +35,9 @@ class Strategies extends Component {
       this.setState({
         strategySettings: responseJSON,
         loadingSpinner: false,
-        accordion: new Array(testResult.length).fill(false)
+        accordion: new Array(responseJSON.length).fill(false)
       });
-    });
+    }).catch(err => alert("Something went wrong contacting the server."));
   }
   
   toggleAccordion(tab) {
@@ -64,6 +61,9 @@ class Strategies extends Component {
                   <i className="fa fa-align-justify"></i> Installed Trading Strategies
                 </CardHeader>
                 <CardBody>
+                { this.state.loadingSpinner ?
+                  <Spinner animation="border" role="status" variant="secondary" />
+                :
                   <div id="accordion">
                   { this.state.strategySettings.map((value, index) => (
                     <Card className="mb-0">
@@ -99,13 +99,59 @@ class Strategies extends Component {
                             </div>
                           </Row>
                           <Row>
-                            {JSON.stringify(value,null,'\t')}
+                            <Table responsive striped size="sm">
+                              <thead>
+                              <tr>
+                                <th>Setting</th>
+                                <th>Value</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              <tr>
+                                <td>Strategy Enabled</td>
+                                <td>{value.enabled.toString()}</td>
+                              </tr>
+                              <tr>
+                                <td>Paper Trading</td>
+                                <td>{value.paperTrading.toString()}</td>
+                              </tr>
+                              <tr>
+                                <td>Requires Alpaca API</td>
+                                <td>{value.requiresAlpaca.toString()}</td>
+                              </tr>
+                              <tr>
+                                <td>Requires TD Ameritrade API</td>
+                                <td>{value.requiresTDA.toString()}</td>
+                              </tr>
+                              <tr>
+                                <td>Requires Robinhood API</td>
+                                <td>{value.requiresRobinhood.toString()}</td>
+                              </tr>
+                              <tr>
+                                <td>Market Hours</td>
+                                <td>{value.marketHours}</td>
+                              </tr>
+                              <tr>
+                                <td>Day Trading Required</td>
+                                <td>{value.requiresDayTrading.toString()}</td>
+                              </tr>
+                              <tr>
+                                <td>Requires Realtime Data</td>
+                                <td>{value.requiresRealtime.toString()}</td>
+                              </tr>
+                              <tr>
+                                <td>Metadata</td>
+                                <td>{value.meta.toString()}</td>
+                              </tr>
+                              </tbody>
+                            </Table>
                           </Row>
                         </CardBody>
                       </Collapse>
                     </Card>
                   ))}
                   </div>
+                }
                 </CardBody>
               </Card>
             </Col>
