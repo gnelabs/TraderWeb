@@ -92,6 +92,7 @@ class App extends Component {
             <PrivateRoute exact path="/" name="Home" component={DefaultLayout} />
             <PrivateRoute path="/settings" name="Settings" component={DefaultLayout} />
             <PrivateRoute path="/strategies" name="Strategies" component={DefaultLayout} />
+            <PrivateRoute path="/systemstatus" name="SystemStatus" component={DefaultLayout} />
             <Route path="/login" name="Login Page" render={props => <Login {...props} />} />
             <Route path="/register" name="Register" render={props => <Register {...props} />} />
           </Switch>

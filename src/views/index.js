@@ -3,6 +3,7 @@ import Login from './Login';
 import Register from './Register';
 import Settings from './Settings';
 import Strategies from './Strategies';
+import SystemStatus from './SystemStatus';
 
 
 export {
@@ -10,6 +11,7 @@ export {
     Login,
     Register,
     Settings,
-    Strategies
+    Strategies,
+    SystemStatus
 };
 

@@ -28,8 +28,8 @@ class Strategies extends Component {
     
     this.state = {
       jwttoken: "",
-      submitDisabled: false,
-      loadingSpinner: false,
+      submitDisabled: true,
+      loadingSpinner: true,
       strategySettings: [],
       accordion: new Array(1).fill(false),
       smallModal: false,
@@ -59,6 +59,7 @@ class Strategies extends Component {
       this.setState({
         strategySettings: responseJSON,
         loadingSpinner: false,
+        submitDisabled: false,
         accordion: new Array(responseJSON.length).fill(false)
       });
     }).catch(err => alert("Something went wrong contacting the server."));

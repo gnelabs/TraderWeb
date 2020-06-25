@@ -35,6 +35,11 @@ export default {
       icon: 'fa fa-lightbulb-o',
     },
     {
+      name: 'System Status',
+      url: '/systemstatus',
+      icon: 'fa fa-server',
+    },
+    {
       name: 'Log Out',
       url: '/login',
       icon: 'fa fa-sign-out',
