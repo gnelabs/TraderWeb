@@ -1,3 +1,5 @@
+DEPRECATED
+
 ## Installation
 
 ### Cloning package
